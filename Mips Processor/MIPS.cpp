@@ -153,7 +153,7 @@ void RFormat(string hex,map<int, vector<string> > reg){
     }
     cout<<"Register "<<rd<<" contains the value of "<<reg[rd][0]<<endl;
 }
-void IFormat(string hex,map<int, vector<string> > reg){
+void IFormat(string hex, map<int, vector<string>>& reg, map<int, string>& mem){
     hex = hexToBinary(hex);
     int opCode =  binToDecimal(STI(subString(hex,0,6)));
     int rs = binToDecimal(STI(subString(hex,6,11)));
@@ -162,6 +162,16 @@ void IFormat(string hex,map<int, vector<string> > reg){
     if(opCode == 8){
         string set = ADD(reg[rs][0],to_string(im));
         reg[rt][0] = set;
+    }
+    if (opCode == 35) { // LW
+        int address = binToDecimal(STI(ADD(reg[rs][0], to_string(im))));
+        reg[rt][0] = mem[address];
+        cout << "Loaded value " << reg[rt][0] << " from memory address " << address << " into register " << rt << endl;
+    }
+    if (opCode == 43) { // SW
+        int address = binToDecimal(STI(ADD(reg[rs][0], to_string(im))));
+        mem[address] = reg[rt][0];
+        cout << "Stored value " << reg[rt][0] << " into memory address " << address << endl;
     }
     if(opCode == 43){
         string set = ADD(reg[rs][1],to_string(im));
@@ -195,6 +205,8 @@ bool isHex(string hex){
 int main(){
 
     map<int, vector<string> > reg;
+    map<int, string> mem;
+    mem[0] = "4000";
     reg[1].push_back("0009");
     reg[1].push_back("0103");
     reg[2].push_back("012A");
